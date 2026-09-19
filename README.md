@@ -27,6 +27,7 @@ The model only looks at two numbers—tempo and energy. It does not consider oth
 - Tested the extreme input of tempo 180 and energy 0, noticed that the progress bar and text prediction could disagree because they used different scoring formulas, and directed Codex to use one shared distance-based score.
 - Directed Codex to add a reset button, confirm keyboard slider navigation, and provide a visible focus outline for keyboard users.
 - Directed Codex to add a “guess first” interaction so visitors choose chill or hype before the model reveals its prediction.
+- Showed the page to a classmate without explaining it first. They understood the sliders and the basic comparison logic, but were confused by the unexplained “distance” and “points” numbers, and noted that the “Why might it be unsure?” note only covered the 105 BPM case, not conflicting-clue cases like fast tempo with low energy. Directed Codex to add a plain-language explanation of what the numbers mean and expand the “unsure” explanation to cover conflicting clues.
 
 ## Credits
 
