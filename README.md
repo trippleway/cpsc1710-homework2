@@ -19,15 +19,12 @@ The classifier compares the beat with two learned examples: a chill beat at 70 B
 
 The model only looks at two numbers—tempo and energy. It does not consider other parts of real music, such as melody, instruments, or the emotion of lyrics, so it may not classify some real songs accurately: for example, a slow but intense song or a fast but calm song.
 
-模型只看两个数字（tempo 和 energy），没考虑真实音乐的其他面向（旋律、乐器、歌词情绪等），所以对某些「慢但很躁」或「快但很平静」的真实歌曲可能判断得不准。
-
 ## Development Log
 
 - Directed Codex to create a first version with tempo and energy sliders, a chill/hype prediction, visible scores and distances to two learned examples, and a reason for each prediction.
 - Tested the extreme input of tempo 180 and energy 0, noticed that the progress bar and text prediction could disagree because they used different scoring formulas, and directed Codex to use one shared distance-based score.
 - Directed Codex to add a reset button, confirm keyboard slider navigation, and provide a visible focus outline for keyboard users.
 - Directed Codex to add a “guess first” interaction so visitors choose chill or hype before the model reveals its prediction.
-- Showed the page to a classmate without explaining it first. They understood the sliders and the basic comparison logic, but were confused by the unexplained “distance” and “points” numbers, and noted that the “Why might it be unsure?” note only covered the 105 BPM case, not conflicting-clue cases like fast tempo with low energy. Directed Codex to add a plain-language explanation of what the numbers mean and expand the “unsure” explanation to cover conflicting clues.
 
 ## Credits
 
