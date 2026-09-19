@@ -42,6 +42,7 @@
     .score { border:2px solid var(--ink); border-radius:12px; padding:13px; background:white; }
     .score strong { display:block; font-size:1.35rem; }
     .score small { color:#43505b; }
+    .score-key { margin:12px 0 0; padding:10px 12px; border-left:5px solid var(--chill); background:#eefbff; line-height:1.4; font-size:.92rem; }
     .examples { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
     .example { text-align:left; border:2px solid var(--ink); border-radius:12px; padding:13px; background:white; cursor:pointer; font:inherit; color:inherit; }
     .example:hover,.example:focus-visible { background:var(--sun); outline:3px solid var(--ink); outline-offset:2px; }
@@ -101,6 +102,7 @@
         <div class="score"><strong id="chillDistance">Chill distance: 0.0</strong><small>How far this beat is from the chill example.</small></div>
         <div class="score"><strong id="hypeDistance">Hype distance: 0.0</strong><small>How far this beat is from the hype example.</small></div>
       </div>
+      <p class="score-key"><strong>What do these numbers mean?</strong> Points show how one clue leans—negative is more chill and positive is more hype. Distance combines both clues: the smaller distance wins, and similar distances mean the model is unsure.</p>
 
       <h2>Try the beats it learned from</h2>
       <div class="examples">
@@ -108,7 +110,7 @@
         <button class="example" data-tempo="140" data-energy="9"><strong>140 BPM · energy 9</strong><br><span class="tag hype">Hype example</span></button>
       </div>
 
-      <p class="note"><strong>Why might it be unsure?</strong> Around <strong>105 BPM</strong>, tempo is between the two examples. If energy is also in the middle, both examples are similarly close, so the classifier says it is unsure.</p>
+      <p class="note"><strong>Why might it be unsure?</strong> Around <strong>105 BPM</strong>, tempo is between the two examples. It can also happen when clues disagree: for example, a fast tempo pulls toward hype while low energy pulls toward chill. When both examples end up similarly close, the classifier says it is unsure.</p>
       <footer>This is a playful classroom model, not a rule about every song. Real music can be both calm and energetic in surprising ways.</footer>
     </section>
   </main>
