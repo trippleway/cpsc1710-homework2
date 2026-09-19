@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A tiny playful beat classifier using tempo and energy.">
+  <title>Beat Vibe Classifier</title>
+  <style>
+    :root { --ink:#17202a; --cream:#fff8e8; --chill:#55c7e8; --hype:#ff5a7d; --sun:#ffd85b; --line:3px solid var(--ink); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); background:linear-gradient(135deg,#b8f0ff 0 42%,var(--cream) 42% 67%,#ffd4df 67%); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(900px,calc(100% - 32px)); margin:30px auto 50px; }
+    .card { background:rgba(255,255,255,.93); border:var(--line); border-radius:22px; box-shadow:8px 8px 0 var(--ink); padding:clamp(20px,4vw,38px); }
+    .eyebrow { margin:0 0 10px; font-size:.8rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(2.3rem,7vw,4.5rem); line-height:.92; letter-spacing:-.07em; }
+    .intro { max-width:640px; font-size:1.08rem; line-height:1.5; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:28px 0 20px; }
+    .control { border:var(--line); border-radius:16px; padding:17px; background:var(--cream); }
+    label { display:flex; justify-content:space-between; gap:10px; font-weight:800; }
+    output { background:var(--ink); color:white; border-radius:999px; padding:2px 9px; font-variant-numeric:tabular-nums; }
+    input[type="range"] { width:100%; accent-color:var(--hype); margin:18px 0 3px; }
+    input[type="range"]:focus-visible { outline:4px solid var(--ink); outline-offset:5px; border-radius:999px; }
+    .scale { display:flex; justify-content:space-between; font-size:.8rem; }
+    .guess-box { margin:22px 0; border:var(--line); border-radius:18px; padding:19px; background:#e8faff; }
+    .guess-box h2 { margin:0 0 6px; font-size:1.45rem; }
+    .guess-box p { margin:0; line-height:1.45; }
+    .guess-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    .guess-button { border:2px solid var(--ink); border-radius:999px; padding:9px 17px; background:white; color:var(--ink); cursor:pointer; font:inherit; font-weight:800; }
+    .guess-button:hover,.guess-button[aria-pressed="true"] { background:var(--sun); }
+    .guess-button:focus-visible { outline:4px solid var(--ink); outline-offset:3px; }
+    .guess-feedback { min-height:1.5em; margin-top:12px!important; font-weight:800; }
+    .result { border:var(--line); border-radius:18px; padding:20px; background:var(--sun); }
+    .result-top { display:flex; align-items:center; justify-content:space-between; gap:15px; }
+    .prediction { margin:0; font-size:clamp(2rem,6vw,3.2rem); line-height:1; letter-spacing:-.06em; }
+    .emoji { font-size:3rem; line-height:1; }
+    .reason { margin:13px 0 0; line-height:1.45; }
+    .confidence { margin:12px 0 0; font-size:.92rem; font-weight:700; }
+    .bar { height:15px; border:2px solid var(--ink); border-radius:999px; overflow:hidden; background:var(--chill); margin-top:8px; }
+    .bar > div { height:100%; background:var(--hype); transition:width .2s; }
+    h2 { margin:32px 0 10px; font-size:1.45rem; letter-spacing:-.035em; }
+    .how { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .score { border:2px solid var(--ink); border-radius:12px; padding:13px; background:white; }
+    .score strong { display:block; font-size:1.35rem; }
+    .score small { color:#43505b; }
+    .examples { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .example { text-align:left; border:2px solid var(--ink); border-radius:12px; padding:13px; background:white; cursor:pointer; font:inherit; color:inherit; }
+    .example:hover,.example:focus-visible { background:var(--sun); outline:3px solid var(--ink); outline-offset:2px; }
+    .tag { display:inline-block; margin-top:4px; padding:2px 7px; border-radius:999px; font-size:.78rem; font-weight:800; }
+    .tag.chill { background:var(--chill); }.tag.hype { background:var(--hype); color:white; }
+    .note { margin:22px 0 0; padding:14px 16px; border-left:7px solid var(--hype); background:#ffe9ee; line-height:1.45; }
+    .reset { display:block; width:fit-content; margin:20px 0 0 auto; border:2px solid var(--ink); border-radius:999px; padding:9px 14px; background:white; color:var(--ink); cursor:pointer; font:inherit; font-weight:800; }
+    .reset:hover { background:var(--sun); }
+    .reset:focus-visible,.example:focus-visible { outline:4px solid var(--ink); outline-offset:3px; }
+    footer { margin-top:19px; font-size:.86rem; color:#42505a; }
+    @media (max-width:600px) { .grid,.how,.examples { grid-template-columns:1fr; } main { margin-top:16px; } }
+    @media (prefers-reduced-motion:reduce) { * { transition:none!important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card" aria-labelledby="title">
+      <p class="eyebrow">Tiny music machine ✦ two clues</p>
+      <h1 id="title">Is this beat chill or hype?</h1>
+      <p class="intro">Move the sliders. This tiny classifier looks at <strong>tempo</strong> and <strong>energy</strong> together, then compares your beat with two example beats it has learned from.</p>
+
+      <div class="grid">
+        <div class="control">
+          <label for="tempo">Tempo <output id="tempoValue">70 BPM</output></label>
+          <input id="tempo" type="range" min="50" max="180" value="70">
+          <div class="scale"><span>50 slow</span><span>180 fast</span></div>
+        </div>
+        <div class="control">
+          <label for="energy">Energy <output id="energyValue">2 / 10</output></label>
+          <input id="energy" type="range" min="0" max="10" value="2">
+          <div class="scale"><span>0 mellow</span><span>10 wild</span></div>
+        </div>
+      </div>
+      <button class="reset" id="reset" type="button">↺ Reset to 70 BPM · energy 2</button>
+
+      <section class="guess-box" aria-labelledby="guessTitle">
+        <h2 id="guessTitle">Your turn: guess first!</h2>
+        <p>Based on the tempo and energy, what vibe do <em>you</em> hear?</p>
+        <div class="guess-actions" role="group" aria-label="Your beat-vibe guess">
+          <button class="guess-button" type="button" data-guess="chill" aria-pressed="false">😌 Chill</button>
+          <button class="guess-button" type="button" data-guess="hype" aria-pressed="false">🔥 Hype</button>
+        </div>
+        <p class="guess-feedback" id="guessFeedback" aria-live="polite">Pick a guess to reveal the model’s answer.</p>
+      </section>
+
+      <section class="result" id="modelResult" aria-live="polite" hidden>
+        <div class="result-top"><p class="prediction" id="prediction">Chill</p><span class="emoji" id="emoji" aria-hidden="true">😌</span></div>
+        <p class="reason" id="reason"></p>
+        <p class="confidence" id="confidence"></p>
+        <div class="bar" aria-label="A bar showing how hype the model thinks the beat is"><div id="hypeBar"></div></div>
+      </section>
+
+      <h2>What the tiny model is weighing</h2>
+      <div class="how">
+        <div class="score"><strong id="tempoScore">Tempo: 0.0 points</strong><small>Slower BPM pulls toward chill; faster BPM pulls toward hype.</small></div>
+        <div class="score"><strong id="energyScore">Energy: 0.0 points</strong><small>Higher energy pulls toward hype too.</small></div>
+        <div class="score"><strong id="chillDistance">Chill distance: 0.0</strong><small>How far this beat is from the chill example.</small></div>
+        <div class="score"><strong id="hypeDistance">Hype distance: 0.0</strong><small>How far this beat is from the hype example.</small></div>
+      </div>
+
+      <h2>Try the beats it learned from</h2>
+      <div class="examples">
+        <button class="example" data-tempo="70" data-energy="2"><strong>70 BPM · energy 2</strong><br><span class="tag chill">Chill example</span></button>
+        <button class="example" data-tempo="140" data-energy="9"><strong>140 BPM · energy 9</strong><br><span class="tag hype">Hype example</span></button>
+      </div>
+
+      <p class="note"><strong>Why might it be unsure?</strong> Around <strong>105 BPM</strong>, tempo is between the two examples. If energy is also in the middle, both examples are similarly close, so the classifier says it is unsure.</p>
+      <footer>This is a playful classroom model, not a rule about every song. Real music can be both calm and energetic in surprising ways.</footer>
+    </section>
+  </main>
+  <script>
+    const tempo = document.querySelector('#tempo');
+    const energy = document.querySelector('#energy');
+    const chill = { tempo: 70, energy: 2 };
+    const hype = { tempo: 140, energy: 9 };
+    const el = id => document.querySelector('#' + id);
+    let guess = null;
+
+    function distance(a, b) {
+      // Tempo is divided by 13 so one noticeable BPM step is about as important as one energy step.
+      return Math.hypot((a.tempo - b.tempo) / 13, a.energy - b.energy);
+    }
+    function clearGuess() {
+      guess = null;
+      el('modelResult').hidden = true;
+      el('guessFeedback').textContent = 'Pick a guess to reveal the model’s answer.';
+      document.querySelectorAll('.guess-button').forEach(button => button.setAttribute('aria-pressed', 'false'));
+    }
+    function update(keepGuess = false) {
+      if (!keepGuess) clearGuess();
+      const beat = { tempo: Number(tempo.value), energy: Number(energy.value) };
+      const chillD = distance(beat, chill);
+      const hypeD = distance(beat, hype);
+      const tempoPoints = (beat.tempo - 105) / 13;
+      const energyPoints = beat.energy - 5.5;
+      const closeness = Math.abs(chillD - hypeD);
+      // One shared score powers both the bar and the label:
+      // 0% means closest to chill; 100% means closest to hype.
+      const hypePercent = 100 * chillD / (chillD + hypeD);
+      const unsure = Math.abs(hypePercent - 50) < 7;
+      const label = unsure ? 'Hmm… unsure!' : (hypePercent > 50 ? 'Hype!' : 'Chill');
+
+      el('tempoValue').value = beat.tempo + ' BPM';
+      el('energyValue').value = beat.energy + ' / 10';
+      el('prediction').textContent = label;
+      el('emoji').textContent = unsure ? '🤔' : (label === 'Hype!' ? '🔥' : '😌');
+      el('tempoScore').textContent = 'Tempo: ' + tempoPoints.toFixed(1) + ' points';
+      el('energyScore').textContent = 'Energy: ' + energyPoints.toFixed(1) + ' points';
+      el('chillDistance').textContent = 'Chill distance: ' + chillD.toFixed(1);
+      el('hypeDistance').textContent = 'Hype distance: ' + hypeD.toFixed(1);
+
+      el('hypeBar').style.width = hypePercent + '%';
+      if (unsure) {
+        el('reason').textContent = `At ${beat.tempo} BPM and energy ${beat.energy}, this beat is nearly the same distance from both examples. The model needs a stronger clue.`;
+        el('confidence').textContent = 'Close call: its two distance scores are very similar.';
+      } else if (label === 'Hype!') {
+        el('reason').textContent = `The faster tempo and/or bigger energy score pull together toward hype. It is closer to the 140 BPM, energy-9 hype example.`;
+        el('confidence').textContent = 'Hype example is ' + closeness.toFixed(1) + ' distance points closer.';
+      } else {
+        el('reason').textContent = `The slower tempo and/or gentler energy pull together toward chill. It is closer to the 70 BPM, energy-2 chill example.`;
+        el('confidence').textContent = 'Chill example is ' + closeness.toFixed(1) + ' distance points closer.';
+      }
+      if (guess) {
+        const matched = label.toLowerCase().startsWith(guess);
+        el('modelResult').hidden = false;
+        document.querySelectorAll('.guess-button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.guess === guess)));
+        if (matched) {
+          el('guessFeedback').textContent = `✨ Match! You and the model both chose ${label}.`;
+        } else if (unsure) {
+          el('guessFeedback').textContent = `The model is unsure, while you guessed ${guess}. A close call!`;
+        } else {
+          el('guessFeedback').textContent = `Not a match: you guessed ${guess}, and the model chose ${label}.`;
+        }
+      }
+    }
+    [tempo, energy].forEach(input => input.addEventListener('input', update));
+    document.querySelectorAll('.example').forEach(button => button.addEventListener('click', () => {
+      tempo.value = button.dataset.tempo;
+      energy.value = button.dataset.energy;
+      update();
+    }));
+    document.querySelectorAll('.guess-button').forEach(button => button.addEventListener('click', () => {
+      guess = button.dataset.guess;
+      update(true);
+    }));
+    document.querySelector('#reset').addEventListener('click', () => {
+      tempo.value = 70;
+      energy.value = 2;
+      update();
+      tempo.focus();
+    });
+    update();
+  </script>
+</body>
+</html>
