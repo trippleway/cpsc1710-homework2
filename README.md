@@ -1,25 +1,32 @@
-# CPSC 1710 Labs
+# Beat Vibe Classifier
 
-Student-facing assignments and starter materials for CPSC 1710, Fall 2026.
+## Name and purpose
 
-## Labs
+**Beat Vibe Classifier** is a small, playful webpage that classifies a short beat as **chill** or **hype**. It uses two inputs—tempo in beats per minute (BPM) and energy on a scale from 0 to 10—to make its prediction.
 
-- [Lab 1: Meet a deep-learning notebook](lab-01/)
-- [Lab 2: From one pixel to your classifier](lab-02/)
+## How to open and use the page
 
-Use the [live course hub](https://xiuyechen.github.io/cpsc1710-labs/) for the simplest experience. Each assignment is available as a webpage and a printable PDF.
+1. Open `beat-classifier.html` in Chrome, Safari, or Firefox. No installation, API key, or build step is needed.
+2. Use the tempo and energy sliders to describe a beat. You can press Tab to focus a slider and use the arrow keys to change it.
+3. Guess whether the beat is chill or hype, then choose a button to reveal the model's prediction and see whether your guess matched.
+4. Use the reset button to return to 70 BPM and energy 2, or click either learned example to try it.
 
-## Opening the files
+## How the classifier makes a prediction
 
-The HTML files have no build step. After cloning, open `index.html` directly in Chrome, Safari, or Firefox. Avoid VS Code's **Open Preview** for these files: its internal `file+.vscode-resource` links do not work as normal browser addresses.
+The classifier compares the beat with two learned examples: a chill beat at 70 BPM with energy 2, and a hype beat at 140 BPM with energy 9. It calculates how far the beat is from each example while weighing tempo and energy together. The closer example decides the prediction; if both examples are almost equally close, especially around 105 BPM with middle energy, the model says it is unsure.
 
-You can also serve the repository locally:
+## Limitation discovered
 
-```bash
-python3 -m http.server 8000
-```
+The model only looks at two numbers—tempo and energy. It does not consider other parts of real music, such as melody, instruments, or the emotion of lyrics, so it may not classify some real songs accurately: for example, a slow but intense song or a fast but calm song.
 
-Then visit `http://localhost:8000/`.
+模型只看两个数字（tempo 和 energy），没考虑真实音乐的其他面向（旋律、乐器、歌词情绪等），所以对某些「慢但很躁」或「快但很平静」的真实歌曲可能判断得不准。
+
+## Development Log
+
+- Directed Codex to create a first version with tempo and energy sliders, a chill/hype prediction, visible scores and distances to two learned examples, and a reason for each prediction.
+- Tested the extreme input of tempo 180 and energy 0, noticed that the progress bar and text prediction could disagree because they used different scoring formulas, and directed Codex to use one shared distance-based score.
+- Directed Codex to add a reset button, confirm keyboard slider navigation, and provide a visible focus outline for keyboard users.
+- Directed Codex to add a “guess first” interaction so visitors choose chill or hype before the model reveals its prediction.
 
 ## Credits
 
